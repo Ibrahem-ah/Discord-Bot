@@ -1,4 +1,4 @@
-export default function (msg, args, client) {
+export default (msg, args, client) => {
   if (args[0]) {
     const user = getUserFromMention(args[0]);
     if (!user) {
@@ -31,4 +31,4 @@ export default function (msg, args, client) {
       return client.users.cache.get(mention);
     }
   }
-}
+};
