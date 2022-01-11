@@ -7,6 +7,7 @@ import {
   createAudioPlayer,
   createAudioResource,
   AudioPlayerStatus,
+  getVoiceConnection,
 } from '@discordjs/voice';
 
 generateDependencyReport();
@@ -133,7 +134,8 @@ const stop_song = (msg, server_queue) => {
     return msg.channel.send(
       'You need to be in a channel to execute this command!'
     );
-  player.stop();
-  server_queue.songs = [];
-  server_queue.connection.dispatcher.end();
+  // player.stop();
+  connection.destroy();
+  // server_queue.songs = [];
+  // server_queue.connection.dispatcher.end();
 };

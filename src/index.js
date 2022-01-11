@@ -22,7 +22,7 @@ import gif from './commands/gif.js';
 import choochoo from './commands/choochoo.js';
 import avatar from './commands/avatar.js';
 import meme from './commands/meme.js';
-import music from './commands/play.js';
+import music from './commands/music.js';
 
 const commands = { choochoo, avatar, meme, music }; // functions inside some sort of list/array/whatever is also known as a jump table technique,
 
