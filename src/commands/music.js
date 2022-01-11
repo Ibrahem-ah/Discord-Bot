@@ -30,7 +30,7 @@ export default async (msg, args, client, cmd) => {
     return msg.channel.send('You dont have the correct permission');
 
   const serverQueue = queue.get(msg.guild.id);
-  console.log(queue);
+  console.log(serverQueue);
 
   if (cmd === 'play') {
     if (!args.length)
@@ -59,6 +59,7 @@ export default async (msg, args, client, cmd) => {
         msg.channel.send('Error finding your Video');
       }
     }
+
     if (!serverQueue) {
       const queue_constructor = {
         voiceChannel: voiceChannel,
@@ -135,7 +136,11 @@ const stop_song = (msg, server_queue) => {
       'You need to be in a channel to execute this command!'
     );
   // player.stop();
+  const connection = getVoiceConnection(msg.guild.id);
   connection.destroy();
+  queue.clear();
+
   // server_queue.songs = [];
+  // console.log(server_queue.length);
   // server_queue.connection.dispatcher.end();
 };
