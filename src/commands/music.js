@@ -1,6 +1,5 @@
 import ytdl from 'ytdl-core';
 import ytSearch from 'yt-search';
-
 import {
   joinVoiceChannel,
   generateDependencyReport,
@@ -10,7 +9,7 @@ import {
   getVoiceConnection,
 } from '@discordjs/voice';
 
-generateDependencyReport();
+// generateDependencyReport();
 
 const queue = new Map();
 
@@ -30,7 +29,6 @@ export default async (msg, args, client, cmd) => {
     return msg.channel.send('You dont have the correct permission');
 
   const serverQueue = queue.get(msg.guild.id);
-  console.log(serverQueue);
 
   if (cmd === 'play') {
     if (!args.length)
@@ -39,10 +37,10 @@ export default async (msg, args, client, cmd) => {
     let song = {};
 
     if (ytdl.validateURL(args[0])) {
-      const song_info = await ytdl.getInfo(args[0]);
+      const songInfo = await ytdl.getInfo(args[0]);
       song = {
-        title: song_info.videoDetails.title,
-        url: song_info.videoDetails.video_url,
+        title: songInfo.videoDetails.title,
+        url: songInfo.videoDetails.video_url,
       };
     } else {
       const findVideo = async (query) => {
@@ -56,7 +54,7 @@ export default async (msg, args, client, cmd) => {
           url: video.url,
         };
       } else {
-        msg.channel.send('Error finding your Video');
+        return msg.channel.send('Error finding your Video');
       }
     }
 
@@ -99,15 +97,17 @@ const video_player = async (guild, song) => {
 
   //If no song is left in the server queue. Leave the voice channel and delete the key and value pair from the global queue.
   if (!song) {
-    song_queue.voice_channel.leave();
+    const connection = getVoiceConnection(guild.id);
+    connection.destroy();
+
     queue.delete(guild.id);
     return;
   }
   const stream = ytdl(song.url, { filter: 'audioonly' });
 
-  const player = await createAudioPlayer(); //////////////////////////////////////////////////
-  const resource = await createAudioResource(stream); /////////////////////////////////////////////
-  await song_queue.connection.subscribe(player); ////////////////////////////////////////////////////////////
+  const player = await createAudioPlayer();
+  const resource = await createAudioResource(stream);
+  await song_queue.connection.subscribe(player);
 
   player.play(resource, { seek: 0, volume: 0 });
 
@@ -119,28 +119,39 @@ const video_player = async (guild, song) => {
   await song_queue.text_channel.send(`🎶 Now playing **${song.title}**`);
 };
 
-const skip_song = (msg, server_queue) => {
+const skip_song = (msg, serverQueue) => {
   if (!msg.member.voice.channel)
     return msg.channel.send(
       'You need to be in a channel to execute this command!'
     );
-  if (!server_queue) {
-    return msg.channel.send(`There are no songs in queue 😔`);
+
+  try {
+    serverQueue.songs.shift();
+    if (serverQueue.songs[0]) {
+      video_player(msg.guild, serverQueue.songs[0]);
+    } else {
+      const connection = getVoiceConnection(msg.guild.id);
+
+      connection.destroy();
+      queue.clear();
+
+      return msg.channel.send('No more songs in queue 😔');
+    }
+  } catch (err) {
+    return msg.channel.send(`No more songs in queue 😔`);
   }
-  server_queue.connection.dispatcher.end();
 };
 
-const stop_song = (msg, server_queue) => {
+const stop_song = async (msg, server_queue) => {
   if (!msg.member.voice.channel)
     return msg.channel.send(
       'You need to be in a channel to execute this command!'
     );
-  // player.stop();
   const connection = getVoiceConnection(msg.guild.id);
-  connection.destroy();
-  queue.clear();
-
-  // server_queue.songs = [];
-  // console.log(server_queue.length);
-  // server_queue.connection.dispatcher.end();
+  if (connection) {
+    connection.destroy();
+    queue.clear();
+  } else {
+    return msg.channel.send(' There is no song playing!');
+  }
 };
