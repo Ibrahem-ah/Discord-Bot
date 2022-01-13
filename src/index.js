@@ -18,21 +18,16 @@ client.once('ready', () => {
 
 const prefix = '.';
 
-import gif from './commands/gif.js';
 import choochoo from './commands/choochoo.js';
 import avatar from './commands/avatar.js';
 import meme from './commands/meme.js';
 import music from './commands/music.js';
+import gif from './commands/gif.js';
 
-const commands = { choochoo, avatar, meme, music }; // functions inside some sort of list/array/whatever is also known as a jump table technique,
+const commands = { choochoo, avatar, meme, music, gif }; // functions inside some sort of list/array/whatever is also known as a jump table technique,
 
 client.on('messageCreate', async (message) => {
-  if (
-    !message.content.startsWith(prefix) ||
-    message.author.bot ||
-    message.channel.id !== '893197693713809529'
-  )
-    return;
+  if (!message.content.startsWith(prefix) || message.author.bot) return;
   const args = message.content.slice(prefix.length).split(' '); //split a string into an array
   const command = args.shift().toLowerCase(); // removes the first element from an array and returns that removed element.
 
@@ -57,6 +52,10 @@ client.on('messageCreate', async (message) => {
     case 'skip':
     case 'stop': {
       await commands['music'](message, args, client, command);
+      break;
+    }
+    case 'gif': {
+      await commands[command](message, args);
       break;
     }
 

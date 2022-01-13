@@ -1,20 +1,18 @@
 import fetch from 'node-fetch';
 
 export default async function (msg, args) {
-  let keywords = '';
-  if (args.length > 0) {
-    keywords = args.join(' ');
-  }
+  if (!args.length)
+    return msg.channel.send('You need to send a second argument!');
 
-  let url = `https://api.tenor.com/v1/search?q=${keywords}&key=${process.env.TENORKEY}&contentfilter=high`;
+  const keywords = args.join(' ');
 
-  //   let url = `https://g.tenor.com/v1/registershare?id=8776030&key=LIVDSRZULELA&q=excited`;
+  let url = `https://g.tenor.com/v1/search?q=${keywords}&key=LIVDSRZULELA&limit=8`;
+
+  // let url = `https://api.giphy.com/v1/gifs/ok&key=LIVDSRZULELA&limit=8`
 
   let response = await fetch(url);
-  console.log(response.length);
+  const data = await response.json();
 
-  const index = Math.floor(Math.random() * response.length);
-  msg.channel.send(response.data.results[index].url);
-  //   console.log(object);
-  msg.channel.send('GIF from Tenor: ' + keywords);
+  const index = Math.floor(Math.random() * data.results.length);
+  msg.channel.send(data.results[index].url);
 }
