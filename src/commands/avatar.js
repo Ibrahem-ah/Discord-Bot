@@ -7,7 +7,7 @@ export default (msg, args, client) => {
       );
     }
     return msg.channel.send(
-      `${user.username}'s avatar: ${msg.member.user.displayAvatarURL({
+      `${user.username}'s avatar: ${user.displayAvatarURL({
         dynamic: true,
       })}`
     );
@@ -28,6 +28,7 @@ export default (msg, args, client) => {
       if (mention.startsWith('!')) {
         mention = mention.slice(1);
       }
+
       return client.users.cache.get(mention);
     }
   }
