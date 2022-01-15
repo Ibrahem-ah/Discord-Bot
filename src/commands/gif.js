@@ -6,13 +6,11 @@ export default async function (msg, args) {
 
   const keywords = args.join(' ');
 
-  // let url = `https://g.tenor.com/v1/search?q=${keywords}&key=LIVDSRZULELA&limit=8`;
-
   let url = `https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=${keywords}`;
 
   let response = await fetch(url);
   const data = await response.json();
-  console.log(data.data.length);
+  
   if (data.data.length) {
     const index = Math.floor(Math.random() * data.data.length);
     return msg.channel.send(data.data[index].url);
